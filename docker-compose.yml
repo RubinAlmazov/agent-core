@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: agent
       POSTGRES_PASSWORD: agent
     ports:
-      - "55432:5432"
+      - "55433:5432"
     volumes:
       - agent_core_postgres_data:/var/lib/postgresql/data
     healthcheck:
