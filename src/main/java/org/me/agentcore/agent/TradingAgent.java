@@ -51,6 +51,10 @@ public class TradingAgent {
     }
 
     public void runOnce(String ticker) {
+        runOnce(ticker, null);
+    }
+
+    public void runOnce(String ticker, Long agentRunId) {
         MarketSnapshot marketSnapshot = marketDataService.getMarketSnapshot(ticker);
         PortfolioState portfolioState = portfolioService.getPortfolioState();
         DecisionContext context = new DecisionContext(
@@ -61,13 +65,13 @@ public class TradingAgent {
                 portfolioState
         );
 
-        journalService.recordDecisionContext(context);
+        journalService.recordDecisionContext(agentRunId, context);
 
         TradeDecision decision = decisionService.decide(context);
-        long decisionId = journalService.recordTradeDecision(context, decision);
+        long decisionId = journalService.recordTradeDecision(agentRunId, context, decision);
 
         RiskCheckResult riskCheckResult = riskManager.check(decision, context);
-        long riskCheckId = journalService.recordRiskCheck(decisionId, riskCheckResult);
+        long riskCheckId = journalService.recordRiskCheck(agentRunId, decisionId, riskCheckResult);
 
         if (!riskCheckResult.approved() || riskCheckResult.finalAction() == TradeAction.HOLD) {
             return;
@@ -75,7 +79,7 @@ public class TradingAgent {
 
         OrderRequest orderRequest = createOrderRequest(decision, context);
         OrderResult orderResult = brokerService.placeOrder(orderRequest);
-        journalService.recordOrderResult(decisionId, riskCheckId, orderRequest, orderResult);
+        journalService.recordOrderResult(agentRunId, decisionId, riskCheckId, orderRequest, orderResult);
     }
 
     private OrderRequest createOrderRequest(TradeDecision decision, DecisionContext context) {
