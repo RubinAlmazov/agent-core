@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 import tools.jackson.databind.ObjectMapper;
 
 import java.sql.PreparedStatement;
+import java.sql.Types;
+import java.util.List;
 
 @Repository
 public class OrderJournalRepository {
@@ -28,9 +30,10 @@ public class OrderJournalRepository {
         this.tradingProperties = tradingProperties;
     }
 
-    public long save(long decisionId, long riskCheckId, OrderRequest request, OrderResult result) {
+    public long save(Long agentRunId, long decisionId, long riskCheckId, OrderRequest request, OrderResult result) {
         String sql = """
                 insert into orders (
+                    agent_run_id,
                     decision_id,
                     risk_check_id,
                     ticker,
@@ -43,31 +46,56 @@ public class OrderJournalRepository {
                     order_request_json,
                     order_result_json
                 )
-                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb)
+                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb)
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(sql, new String[]{"id"});
-            statement.setLong(1, decisionId);
-            statement.setLong(2, riskCheckId);
-            statement.setString(3, result.ticker());
-            statement.setString(4, result.side().name());
-            statement.setBigDecimal(5, result.quantity());
-            statement.setBigDecimal(6, result.requestedPrice());
-            statement.setBigDecimal(7, result.executedPrice());
-            statement.setString(8, result.status().name());
-            statement.setString(9, tradingProperties.getMode().name());
-            statement.setString(10, writeJson(request));
-            statement.setString(11, writeJson(result));
+            setNullableLong(statement, 1, agentRunId);
+            statement.setLong(2, decisionId);
+            statement.setLong(3, riskCheckId);
+            statement.setString(4, result.ticker());
+            statement.setString(5, result.side().name());
+            statement.setBigDecimal(6, result.quantity());
+            statement.setBigDecimal(7, result.requestedPrice());
+            statement.setBigDecimal(8, result.executedPrice());
+            statement.setString(9, result.status().name());
+            statement.setString(10, tradingProperties.getMode().name());
+            statement.setString(11, writeJson(request));
+            statement.setString(12, writeJson(result));
             return statement;
         }, keyHolder);
 
         return keyHolder.getKey().longValue();
     }
 
+    public List<String> findLatestOrderJson(int limit) {
+        String sql = """
+                select order_result_json::text
+                from orders
+                order by created_at desc
+                limit ?
+                """;
+
+        return jdbcTemplate.query(
+                sql,
+                (resultSet, rowNumber) -> resultSet.getString("order_result_json"),
+                limit
+        );
+    }
+
     private String writeJson(Object value) {
         return objectMapper.writeValueAsString(value);
+    }
+
+    private void setNullableLong(PreparedStatement statement, int parameterIndex, Long value) throws java.sql.SQLException {
+        if (value == null) {
+            statement.setNull(parameterIndex, Types.BIGINT);
+            return;
+        }
+
+        statement.setLong(parameterIndex, value);
     }
 }
