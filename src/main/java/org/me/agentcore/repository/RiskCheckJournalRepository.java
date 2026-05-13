@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import tools.jackson.databind.ObjectMapper;
 
 import java.sql.PreparedStatement;
+import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 
@@ -28,27 +29,29 @@ public class RiskCheckJournalRepository {
         this.objectMapper = objectMapper;
     }
 
-    public long save(long decisionId, RiskCheckResult result) {
+    public long save(Long agentRunId, long decisionId, RiskCheckResult result) {
         String sql = """
                 insert into risk_checks (
+                    agent_run_id,
                     decision_id,
                     approved,
                     rejection_reason,
                     rules_checked_json,
                     risk_result_json
                 )
-                values (?, ?, ?, ?::jsonb, ?::jsonb)
+                values (?, ?, ?, ?, ?::jsonb, ?::jsonb)
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(sql, new String[]{"id"});
-            statement.setLong(1, decisionId);
-            statement.setBoolean(2, result.approved());
-            statement.setString(3, rejectionReason(result));
-            statement.setString(4, writeJson(Map.of("rules", RULES_CHECKED)));
-            statement.setString(5, writeJson(result));
+            setNullableLong(statement, 1, agentRunId);
+            statement.setLong(2, decisionId);
+            statement.setBoolean(3, result.approved());
+            statement.setString(4, rejectionReason(result));
+            statement.setString(5, writeJson(Map.of("rules", RULES_CHECKED)));
+            statement.setString(6, writeJson(result));
             return statement;
         }, keyHolder);
 
@@ -65,5 +68,14 @@ public class RiskCheckJournalRepository {
 
     private String writeJson(Object value) {
         return objectMapper.writeValueAsString(value);
+    }
+
+    private void setNullableLong(PreparedStatement statement, int parameterIndex, Long value) throws java.sql.SQLException {
+        if (value == null) {
+            statement.setNull(parameterIndex, Types.BIGINT);
+            return;
+        }
+
+        statement.setLong(parameterIndex, value);
     }
 }

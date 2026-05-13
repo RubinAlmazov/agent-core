@@ -47,7 +47,7 @@ public class PostgresJournalService implements JournalService {
 
     @Override
     public long recordRiskCheck(Long agentRunId, long decisionId, RiskCheckResult result) {
-        return riskCheckJournalRepository.save(decisionId, result);
+        return riskCheckJournalRepository.save(agentRunId, decisionId, result);
     }
 
     @Override
