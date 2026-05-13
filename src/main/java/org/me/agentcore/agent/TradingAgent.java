@@ -64,10 +64,10 @@ public class TradingAgent {
         journalService.recordDecisionContext(context);
 
         TradeDecision decision = decisionService.decide(context);
-        journalService.recordTradeDecision(decision);
+        long decisionId = journalService.recordTradeDecision(context, decision);
 
         RiskCheckResult riskCheckResult = riskManager.check(decision, context);
-        journalService.recordRiskCheck(riskCheckResult);
+        long riskCheckId = journalService.recordRiskCheck(decisionId, riskCheckResult);
 
         if (!riskCheckResult.approved() || riskCheckResult.finalAction() == TradeAction.HOLD) {
             return;
@@ -75,7 +75,7 @@ public class TradingAgent {
 
         OrderRequest orderRequest = createOrderRequest(decision, context);
         OrderResult orderResult = brokerService.placeOrder(orderRequest);
-        journalService.recordOrderResult(orderResult);
+        journalService.recordOrderResult(decisionId, riskCheckId, orderRequest, orderResult);
     }
 
     private OrderRequest createOrderRequest(TradeDecision decision, DecisionContext context) {
