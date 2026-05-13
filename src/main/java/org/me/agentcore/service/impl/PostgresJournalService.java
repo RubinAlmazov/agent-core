@@ -36,27 +36,33 @@ public class PostgresJournalService implements JournalService {
     }
 
     @Override
-    public void recordDecisionContext(DecisionContext context) {
-        recordPortfolioSnapshot(context.portfolioState());
+    public void recordDecisionContext(Long agentRunId, DecisionContext context) {
+        recordPortfolioSnapshot(agentRunId, context.portfolioState());
     }
 
     @Override
-    public long recordTradeDecision(DecisionContext context, TradeDecision decision) {
-        return decisionJournalRepository.save(context, decision);
+    public long recordTradeDecision(Long agentRunId, DecisionContext context, TradeDecision decision) {
+        return decisionJournalRepository.save(agentRunId, context, decision);
     }
 
     @Override
-    public long recordRiskCheck(long decisionId, RiskCheckResult result) {
+    public long recordRiskCheck(Long agentRunId, long decisionId, RiskCheckResult result) {
         return riskCheckJournalRepository.save(decisionId, result);
     }
 
     @Override
-    public long recordOrderResult(long decisionId, long riskCheckId, OrderRequest request, OrderResult result) {
-        return orderJournalRepository.save(decisionId, riskCheckId, request, result);
+    public long recordOrderResult(
+            Long agentRunId,
+            long decisionId,
+            long riskCheckId,
+            OrderRequest request,
+            OrderResult result
+    ) {
+        return orderJournalRepository.save(agentRunId, decisionId, riskCheckId, request, result);
     }
 
     @Override
-    public long recordPortfolioSnapshot(PortfolioState portfolioState) {
-        return portfolioSnapshotJournalRepository.save(portfolioState);
+    public long recordPortfolioSnapshot(Long agentRunId, PortfolioState portfolioState) {
+        return portfolioSnapshotJournalRepository.save(agentRunId, portfolioState);
     }
 }

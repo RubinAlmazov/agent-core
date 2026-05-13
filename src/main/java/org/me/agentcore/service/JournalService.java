@@ -9,13 +9,13 @@ import org.me.agentcore.domain.TradeDecision;
 
 public interface JournalService {
 
-    void recordDecisionContext(DecisionContext context);
+    void recordDecisionContext(Long agentRunId, DecisionContext context);
 
-    long recordTradeDecision(DecisionContext context, TradeDecision decision);
+    long recordTradeDecision(Long agentRunId, DecisionContext context, TradeDecision decision);
 
-    long recordRiskCheck(long decisionId, RiskCheckResult result);
+    long recordRiskCheck(Long agentRunId, long decisionId, RiskCheckResult result);
 
-    long recordOrderResult(long decisionId, long riskCheckId, OrderRequest request, OrderResult result);
+    long recordOrderResult(Long agentRunId, long decisionId, long riskCheckId, OrderRequest request, OrderResult result);
 
-    long recordPortfolioSnapshot(PortfolioState portfolioState);
+    long recordPortfolioSnapshot(Long agentRunId, PortfolioState portfolioState);
 }
