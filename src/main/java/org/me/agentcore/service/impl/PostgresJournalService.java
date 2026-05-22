@@ -1,11 +1,11 @@
 package org.me.agentcore.service.impl;
 
 import org.me.agentcore.domain.DecisionContext;
+import org.me.agentcore.domain.DecisionResult;
 import org.me.agentcore.domain.OrderRequest;
 import org.me.agentcore.domain.OrderResult;
 import org.me.agentcore.domain.PortfolioState;
 import org.me.agentcore.domain.RiskCheckResult;
-import org.me.agentcore.domain.TradeDecision;
 import org.me.agentcore.repository.DecisionJournalRepository;
 import org.me.agentcore.repository.OrderJournalRepository;
 import org.me.agentcore.repository.PortfolioSnapshotJournalRepository;
@@ -41,8 +41,8 @@ public class PostgresJournalService implements JournalService {
     }
 
     @Override
-    public long recordTradeDecision(Long agentRunId, DecisionContext context, TradeDecision decision) {
-        return decisionJournalRepository.save(agentRunId, context, decision);
+    public long recordDecisionResult(Long agentRunId, DecisionContext context, DecisionResult decisionResult) {
+        return decisionJournalRepository.save(agentRunId, context, decisionResult);
     }
 
     @Override

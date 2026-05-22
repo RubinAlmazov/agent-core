@@ -1,6 +1,7 @@
 package org.me.agentcore.service.impl;
 
 import org.me.agentcore.domain.DecisionContext;
+import org.me.agentcore.domain.DecisionResult;
 import org.me.agentcore.domain.IndicatorSnapshot;
 import org.me.agentcore.domain.TradeAction;
 import org.me.agentcore.domain.TradeDecision;
@@ -20,36 +21,36 @@ public class SimpleDecisionService implements DecisionService {
     private static final BigDecimal RSI_OVERSOLD_THRESHOLD = new BigDecimal("30");
 
     @Override
-    public TradeDecision decide(DecisionContext context) {
+    public DecisionResult decide(DecisionContext context) {
         IndicatorSnapshot indicators = context.indicatorSnapshot();
 
         if (isUptrend(indicators) && isNotOverbought(indicators)) {
-            return new TradeDecision(
+            return new DecisionResult(new TradeDecision(
                     context.ticker(),
                     TradeAction.BUY,
                     DEFAULT_QUANTITY,
                     BUY_CONFIDENCE,
                     "Simple rule: short moving average is above long moving average and RSI is not overbought"
-            );
+            ), null, null);
         }
 
         if (isDowntrend(indicators) && isNotOversold(indicators)) {
-            return new TradeDecision(
+            return new DecisionResult(new TradeDecision(
                     context.ticker(),
                     TradeAction.SELL,
                     DEFAULT_QUANTITY,
                     SELL_CONFIDENCE,
                     "Simple rule: short moving average is below long moving average and RSI is not oversold"
-            );
+            ), null, null);
         }
 
-        return new TradeDecision(
+        return new DecisionResult(new TradeDecision(
                 context.ticker(),
                 TradeAction.HOLD,
                 BigDecimal.ZERO,
                 HOLD_CONFIDENCE,
                 "Simple rule: indicators do not provide a clear trade signal"
-        );
+        ), null, null);
     }
 
     private boolean isUptrend(IndicatorSnapshot indicators) {

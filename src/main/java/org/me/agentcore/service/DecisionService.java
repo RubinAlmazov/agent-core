@@ -1,9 +1,9 @@
 package org.me.agentcore.service;
 
 import org.me.agentcore.domain.DecisionContext;
-import org.me.agentcore.domain.TradeDecision;
+import org.me.agentcore.domain.DecisionResult;
 
 public interface DecisionService {
 
-    TradeDecision decide(DecisionContext context);
+    DecisionResult decide(DecisionContext context);
 }

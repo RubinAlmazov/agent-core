@@ -1,5 +1,6 @@
 HELP.md
 codex.md
+Docker Desktop Installer.exe
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/

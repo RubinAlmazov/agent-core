@@ -1,6 +1,7 @@
 package org.me.agentcore.agent;
 
 import org.me.agentcore.domain.DecisionContext;
+import org.me.agentcore.domain.DecisionResult;
 import org.me.agentcore.domain.MarketSnapshot;
 import org.me.agentcore.domain.OrderRequest;
 import org.me.agentcore.domain.OrderResult;
@@ -67,8 +68,9 @@ public class TradingAgent {
 
         journalService.recordDecisionContext(agentRunId, context);
 
-        TradeDecision decision = decisionService.decide(context);
-        long decisionId = journalService.recordTradeDecision(agentRunId, context, decision);
+        DecisionResult decisionResult = decisionService.decide(context);
+        TradeDecision decision = decisionResult.tradeDecision();
+        long decisionId = journalService.recordDecisionResult(agentRunId, context, decisionResult);
 
         RiskCheckResult riskCheckResult = riskManager.check(decision, context);
         long riskCheckId = journalService.recordRiskCheck(agentRunId, decisionId, riskCheckResult);

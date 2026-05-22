@@ -1,6 +1,7 @@
 package org.me.agentcore.repository;
 
 import org.me.agentcore.domain.DecisionContext;
+import org.me.agentcore.domain.DecisionResult;
 import org.me.agentcore.domain.TradeDecision;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -23,7 +24,8 @@ public class DecisionJournalRepository {
         this.objectMapper = objectMapper;
     }
 
-    public long save(Long agentRunId, DecisionContext context, TradeDecision decision) {
+    public long save(Long agentRunId, DecisionContext context, DecisionResult decisionResult) {
+        TradeDecision decision = decisionResult.tradeDecision();
         String sql = """
                 insert into decisions (
                     agent_run_id,
@@ -31,11 +33,13 @@ public class DecisionJournalRepository {
                     action,
                     confidence,
                     reason,
+                    prompt,
+                    raw_llm_response,
                     parsed_decision_json,
                     market_snapshot_json,
                     portfolio_snapshot_json
                 )
-                values (?, ?, ?, ?, ?, ?::jsonb, ?::jsonb, ?::jsonb)
+                values (?, ?, ?, ?, ?, ?, ?, ?::jsonb, ?::jsonb, ?::jsonb)
                 """;
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -47,9 +51,11 @@ public class DecisionJournalRepository {
             statement.setString(3, decision.action().name());
             statement.setBigDecimal(4, decision.confidence());
             statement.setString(5, decision.reason());
-            statement.setString(6, writeJson(decision));
-            statement.setString(7, writeJson(context.marketSnapshot()));
-            statement.setString(8, writeJson(context.portfolioState()));
+            statement.setString(6, decisionResult.prompt());
+            statement.setString(7, decisionResult.rawLlmResponse());
+            statement.setString(8, writeJson(decision));
+            statement.setString(9, writeJson(context.marketSnapshot()));
+            statement.setString(10, writeJson(context.portfolioState()));
             return statement;
         }, keyHolder);
 

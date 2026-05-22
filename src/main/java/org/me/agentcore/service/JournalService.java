@@ -1,17 +1,17 @@
 package org.me.agentcore.service;
 
 import org.me.agentcore.domain.DecisionContext;
+import org.me.agentcore.domain.DecisionResult;
 import org.me.agentcore.domain.OrderRequest;
 import org.me.agentcore.domain.OrderResult;
 import org.me.agentcore.domain.PortfolioState;
 import org.me.agentcore.domain.RiskCheckResult;
-import org.me.agentcore.domain.TradeDecision;
 
 public interface JournalService {
 
     void recordDecisionContext(Long agentRunId, DecisionContext context);
 
-    long recordTradeDecision(Long agentRunId, DecisionContext context, TradeDecision decision);
+    long recordDecisionResult(Long agentRunId, DecisionContext context, DecisionResult decisionResult);
 
     long recordRiskCheck(Long agentRunId, long decisionId, RiskCheckResult result);
 
