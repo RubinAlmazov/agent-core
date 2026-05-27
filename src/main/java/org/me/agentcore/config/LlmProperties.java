@@ -1,6 +1,7 @@
 package org.me.agentcore.config;
 
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -11,10 +12,11 @@ public class LlmProperties {
     @NotBlank
     private String provider = "groq";
 
-    @NotBlank
-    private String model = "llama-3.1-70b-versatile";
+    @Value("${llm.model}")
+    private String model;
 
-    private String apiKey = "";
+    @Value("${llm.api-key:}")
+    private String apiKey;
 
     public String getProvider() {
         return provider;

@@ -1,5 +1,6 @@
 package org.me.agentcore.service.llm;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.me.agentcore.domain.DecisionContext;
 import org.me.agentcore.domain.DecisionResult;
 import org.me.agentcore.domain.TradeDecision;

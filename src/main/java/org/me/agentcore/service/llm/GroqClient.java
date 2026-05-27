@@ -1,12 +1,12 @@
 package org.me.agentcore.service.llm;
 
 import org.me.agentcore.config.LlmProperties;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +38,15 @@ public class GroqClient {
                 .headers(headers -> headers.setBearerAuth(llmProperties.getApiKey()))
                 .bodyValue(buildRequestBody(prompt))
                 .retrieve()
+                .onStatus(
+                        HttpStatusCode::isError,
+                        response -> response.bodyToMono(String.class)
+                                .map(errorBody ->
+                                        new RuntimeException(
+                                                "Groq API error: " + errorBody
+                                        )
+                                )
+                )
                 .bodyToMono(String.class)
                 .block(REQUEST_TIMEOUT);
 
@@ -67,16 +76,21 @@ public class GroqClient {
             throw new IllegalStateException("Groq response body is empty");
         }
 
-        JsonNode contentNode = objectMapper.readTree(responseBody)
-                .path("choices")
-                .path(0)
-                .path("message")
-                .path("content");
+        JsonNode contentNode;
+        try {
+             contentNode = objectMapper.readTree(responseBody)
+                    .path("choices")
+                    .path(0)
+                    .path("message")
+                    .path("content");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-        if (!contentNode.isTextual() || contentNode.asString().isBlank()) {
+        if (!contentNode.isTextual() || contentNode.asText().isBlank()) {
             throw new IllegalStateException("Groq response does not contain assistant content");
         }
 
-        return contentNode.asString();
+        return contentNode.asText();
     }
 }

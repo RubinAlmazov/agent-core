@@ -17,6 +17,7 @@ import org.me.agentcore.service.JournalService;
 import org.me.agentcore.service.MarketDataService;
 import org.me.agentcore.service.PortfolioService;
 import org.me.agentcore.service.RiskManager;
+import org.me.agentcore.service.llm.GroqDecisionService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,7 +29,7 @@ public class TradingAgent {
     private final MarketDataService marketDataService;
     private final PortfolioService portfolioService;
     private final IndicatorService indicatorService;
-    private final DecisionService decisionService;
+    private final GroqDecisionService groqDecisionService;
     private final RiskManager riskManager;
     private final BrokerService brokerService;
     private final JournalService journalService;
@@ -37,7 +38,7 @@ public class TradingAgent {
             MarketDataService marketDataService,
             PortfolioService portfolioService,
             IndicatorService indicatorService,
-            DecisionService decisionService,
+            GroqDecisionService groqDecisionService,
             RiskManager riskManager,
             BrokerService brokerService,
             JournalService journalService
@@ -45,14 +46,14 @@ public class TradingAgent {
         this.marketDataService = marketDataService;
         this.portfolioService = portfolioService;
         this.indicatorService = indicatorService;
-        this.decisionService = decisionService;
+        this.groqDecisionService = groqDecisionService;
         this.riskManager = riskManager;
         this.brokerService = brokerService;
         this.journalService = journalService;
     }
 
     public void runOnce(String ticker) {
-        runOnce(ticker, null);
+        runOnce(ticker, 1L);
     }
 
     public void runOnce(String ticker, Long agentRunId) {
@@ -68,7 +69,7 @@ public class TradingAgent {
 
         journalService.recordDecisionContext(agentRunId, context);
 
-        DecisionResult decisionResult = decisionService.decide(context);
+        DecisionResult decisionResult = groqDecisionService.decide(context);
         TradeDecision decision = decisionResult.tradeDecision();
         long decisionId = journalService.recordDecisionResult(agentRunId, context, decisionResult);
 

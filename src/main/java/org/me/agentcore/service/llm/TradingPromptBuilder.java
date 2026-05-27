@@ -57,7 +57,7 @@ public class TradingPromptBuilder {
         prompt.append("candles:\n");
 
         List<Candle> candles = context.marketSnapshot().candles();
-        int startIndex = Math.max(0, candles.size() - MAX_CANDLES_IN_PROMPT);   
+        int startIndex = Math.max(0, candles.size() - MAX_CANDLES_IN_PROMPT);
         for (int index = startIndex; index < candles.size(); index++) {
             Candle candle = candles.get(index);
             prompt.append("- time=").append(candle.time())
