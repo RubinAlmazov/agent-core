@@ -23,7 +23,7 @@ public class TradingProperties {
     private List<@NotBlank String> tickers = new ArrayList<>();
 
     @NotNull
-    private Duration cycleInterval = Duration.ofSeconds(60);
+    private Duration cycleInterval = Duration.ofSeconds(10);
 
     public boolean isEnabled() {
         return enabled;

@@ -17,8 +17,8 @@ public class FakePortfolioService implements PortfolioService {
     @Override
     public PortfolioState getPortfolioState() {
         List<Position> positions = List.of(
-                new Position("SBER", new BigDecimal("10"), new BigDecimal("300.00"), new BigDecimal("312.00")),
-                new Position("GAZP", new BigDecimal("20"), new BigDecimal("170.00"), new BigDecimal("168.50"))
+                new Position("BTC", new BigDecimal("10"), new BigDecimal("300.00"), new BigDecimal("312.00")),
+                new Position("SOL", new BigDecimal("20"), new BigDecimal("170.00"), new BigDecimal("168.50"))
         );
 
         BigDecimal totalValue = CASH.add(calculatePositionsValue(positions));

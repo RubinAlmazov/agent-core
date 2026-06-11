@@ -3,6 +3,7 @@ package org.me.agentcore.service.fake;
 import org.me.agentcore.domain.Candle;
 import org.me.agentcore.domain.MarketSnapshot;
 import org.me.agentcore.service.MarketDataService;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -11,7 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Profile("dev")
 public class FakeMarketDataService implements MarketDataService {
+
 
     private static final int CANDLE_COUNT = 30;
 

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Objects;
 
 @Repository
 public class AgentRunRepository {
@@ -39,7 +40,7 @@ public class AgentRunRepository {
             return statement;
         }, keyHolder);
 
-        return keyHolder.getKey().longValue();
+        return Objects.requireNonNull(keyHolder.getKey()).longValue();
     }
 
     public void stopRun(long agentRunId, AgentStatus status) {
