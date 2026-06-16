@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Profile("prod")
+@Profile("binance")
 public class BinanceMarketDataService implements MarketDataService {
 
     private final WebClient webClient;
